@@ -33,8 +33,9 @@ services:
       POSTGRESQL_HOSTNAME: postgres
       POSTGRESQL_DATABASE: guacamole_db
       POSTGRESQL_USER: guacamole_user
-      POSTGRESQL_PASSWORD: supersecretpassword  # Obviously change - must be the same as above
+      POSTGRESQL_PASSWORD: supersecretpassword  # Obviously change - must be the same as above!
       # Optional: serve at "/" instead of "/guacamole"
       WEBAPP_CONTEXT: ROOT
     ports:
+
       - "8080:8080"   # host:container — change external to 1080 if 8080 is taken
