@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: guac_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: guacamole_db
+      POSTGRES_USER: guacamole_user
+      POSTGRES_PASSWORD: supersecretpassword    # Obviously change
+    volumes:
+      - /home/jmarc/guacamole/postgres-data:/var/lib/postgresql/data	# Adjust host absolute path /home/jmarc/guacamole for Portainer. Directory postgres-data must exist and be empty
+      - /home/jmarc/guacamole/init:/docker-entrypoint-initdb.d:ro		# Adjust host absolute path /home/jmarc/guacamole for Portainer. Directory init must contain initdb.sql - Provided separately
+    ports:
+      - "5432:5432"   # publish Postgres port externally (optional; secure appropriately)
+
+  guacd:
+    image: guacamole/guacd:1.6.0
+    container_name: guacd
+    restart: unless-stopped
+    # guacd listens on 4822 inside the network; no external port needed
+
+  guacamole:
+    image: guacamole/guacamole:1.6.0
+    container_name: guacamole
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - guacd
+    environment:
+      GUACD_HOSTNAME: guacd
+      POSTGRESQL_HOSTNAME: postgres
+      POSTGRESQL_DATABASE: guacamole_db
+      POSTGRESQL_USER: guacamole_user
+      POSTGRESQL_PASSWORD: supersecretpassword  # Obviously change - must be the same as above
+      # Optional: serve at "/" instead of "/guacamole"
+      WEBAPP_CONTEXT: ROOT
+    ports:
+      - "8080:8080"   # host:container — change external to 1080 if 8080 is taken
